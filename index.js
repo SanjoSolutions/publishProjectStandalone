@@ -1,7 +1,7 @@
-import * as child_process from 'child_process'
 import * as fs from 'fs/promises'
 import { Octokit } from 'octokit'
 import * as path from 'path'
+import { execSync as exec, execWithBashSync as execWithBash } from '@sanjo/exec'
 
 const fromPath = process.argv[2]
 const toPath = process.argv[3]
@@ -31,12 +31,12 @@ if (gitRepositoryPath) {
     has_projects: false,
     has_wiki: false,
   })
-  execWithBash(`git remote add origin ${response.data.clone_url}`)
+  execWithBash(`git remote add origin ${ response.data.clone_url }`)
   execWithBash('git push -u origin main')
 
   process.chdir(path.dirname(gitRepositoryPath))
-  execWithBash(`git rm -rf ${convertPathToPosixPath(filterPath)}`)
-  execWithBash(`git submodule add ${response.data.clone_url} ${convertPathToPosixPath(filterPath)}`)
+  execWithBash(`git rm -rf ${ convertPathToPosixPath(filterPath) }`)
+  execWithBash(`git submodule add ${ response.data.clone_url } ${ convertPathToPosixPath(filterPath) }`)
 } else {
   console.error('Wasn\'t able to find the Git repository path.')
 }
@@ -70,32 +70,9 @@ async function doesFileExists(filePath) {
   }
 }
 
-function exec(command) {
-  console.log(child_process.execSync(command, {
-    encoding: 'utf-8',
-  }))
-}
-
-function execWithBash(command) {
-  const baseOptions = {
-    encoding: 'utf-8',
-  }
-  if (process.platform === 'win32') {
-    delete process.platform
-    process.platform = 'linux'
-    console.log(child_process.execSync(command, {
-      ...baseOptions,
-      shell: 'C:/Program Files/Git/usr/bin/bash.exe',
-      env: {
-        PATH: '/c/Program Files/Git/usr/bin:/c/Program Files/Git/bin',
-      },
-    }))
-    process.platform = 'win32'
-  } else {
-    console.log(child_process.execSync(command, {
-      ...baseOptions
-    }))
-  }
+const baseOptions = {
+  encoding: 'utf-8',
+  stdio: 'inherit',
 }
 
 function convertPathToPosixPath(path2) {

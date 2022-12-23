@@ -1,6 +1,8 @@
 {
   "type": "module",
   "dependencies": {
-    "octokit": "^2.0.10"
+    "execa": "^6.1.0",
+    "octokit": "^2.0.10",
+    "@sanjo/exec": "file:libs/unnamed/packages/exec"
   }
 }
